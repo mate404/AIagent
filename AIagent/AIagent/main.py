@@ -1,8 +1,9 @@
 import os
+import argparse
 
 from dotenv import load_dotenv
 from google import genai
-
+from google.genai import types
 
 def main():
     load_dotenv()
@@ -11,15 +12,19 @@ def main():
         raise RuntimeError("GEMINI_API_KEY environment variable not set")
 
     client = genai.Client(api_key="AIzaSyBwkNNj9EhkM1wBBWuRMHWZFHWipb7cnv8")
+    parser = argparse.ArgumentParser(description="Chatbot")
+    parser.add_argument("prompt", type=str, help="User prompt")
+    args = parser.parse_args()
+    messages = [types.Content(role="user", parts=[types.Part(text=args.prompt)])]
     response = client.models.generate_content(
         model="gemini-2.5-flash",
-        contents="Why is Boot.dev such a great place to learn backend development? Use one paragraph maximum.",
+        contents=messages,
     )
     
     print("Response:")
     print(response.text)
-    print(response.usage_metadata.prompt_token_count)
-    print(response.usage_metadata.candidates_token_count)
+    print(f"Prompt tokens: {response.usage_metadata.prompt_token_count}")
+    print(f"Response tokens:{response.usage_metadata.candidates_token_count}")
 
 if __name__ == "__main__":
     main()
